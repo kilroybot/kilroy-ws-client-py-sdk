@@ -5,8 +5,11 @@ from kilroy_ws_client_py_sdk.errors import (
 
 from kilroy_ws_client_py_sdk.operations import (
     get,
+    get_stream,
     request,
-    request_stream,
+    request_stream_in,
+    request_stream_in_out,
+    request_stream_out,
     subscribe,
 )
 
