@@ -3,7 +3,7 @@
 
 [tool.poetry]
 name = "kilroy-ws-client-py-sdk"
-version = "0.3.0"
+version = "0.3.1"
 description = "SDK for WebSocket clients in Python 🧰"
 readme = "kilroy_ws_client_py_sdk/README.md"
 authors = ["kilroy <kilroymail@pm.me>"]
