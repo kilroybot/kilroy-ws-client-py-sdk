@@ -1,12 +1,10 @@
 from typing import AsyncIterable, Iterable, TypeVar, Union
 
-from kilroy_ws_client_py_sdk.types import JSON
-
 T = TypeVar("T")
 
 
 async def asyncify(
-    iterable: Union[Iterable[JSON], AsyncIterable[JSON]]
+    iterable: Union[Iterable[T], AsyncIterable[T]]
 ) -> AsyncIterable[T]:
     try:
         iter(iterable)
