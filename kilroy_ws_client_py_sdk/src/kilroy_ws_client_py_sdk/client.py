@@ -23,8 +23,10 @@ from kilroy_ws_client_py_sdk.utils import lead, untrail
 
 
 class Client:
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, *args, **kwargs) -> None:
         self._url = untrail(url)
+        self._args = args
+        self._kwargs = kwargs
 
     @asynccontextmanager
     async def call(
@@ -33,34 +35,33 @@ class Client:
         sender: Sender[DataType],
         receiver: Receiver[ReturnType],
         data: DataType,
-        *args,
         **kwargs,
     ) -> ReturnType:
         url = self._url + lead(path)
-        async with websockets.connect(url, *args, **kwargs) as websocket:
+        async with websockets.connect(
+            url, *self._args, **{**self._kwargs, **kwargs}
+        ) as websocket:
             async with chat(websocket) as chat_id:
                 yield receiver.chain(
                     sender.send(websocket, chat_id, data), websocket, chat_id
                 )
 
-    async def get(self, path: str, *args, **kwargs) -> JSON:
+    async def get(self, path: str, **kwargs) -> JSON:
         async with self.call(
-            path, NullSender(), SingleReceiver(), None, *args, **kwargs
+            path, NullSender(), SingleReceiver(), None, **kwargs
         ) as result:
             return await result
 
-    async def subscribe(
-        self, path: str, *args, **kwargs
-    ) -> AsyncIterable[JSON]:
+    async def subscribe(self, path: str, **kwargs) -> AsyncIterable[JSON]:
         async with self.call(
-            path, NullSender(), StreamReceiver(), None, *args, **kwargs
+            path, NullSender(), StreamReceiver(), None, **kwargs
         ) as results:
             async for result in results:
                 yield result
 
-    async def request(self, path: str, data: JSON, *args, **kwargs) -> JSON:
+    async def request(self, path: str, data: JSON, **kwargs) -> JSON:
         async with self.call(
-            path, SingleSender(), SingleReceiver(), data, *args, **kwargs
+            path, SingleSender(), SingleReceiver(), data, **kwargs
         ) as result:
             return await result
 
@@ -68,19 +69,18 @@ class Client:
         self,
         path: str,
         data: Union[Iterable[JSON], AsyncIterable[JSON]],
-        *args,
         **kwargs,
     ) -> JSON:
         async with self.call(
-            path, StreamSender(), SingleReceiver(), data, *args, **kwargs
+            path, StreamSender(), SingleReceiver(), data, **kwargs
         ) as result:
             return await result
 
     async def request_stream_out(
-        self, path: str, data: JSON, *args, **kwargs
+        self, path: str, data: JSON, **kwargs
     ) -> AsyncIterable[JSON]:
         async with self.call(
-            path, SingleSender(), StreamReceiver(), data, *args, **kwargs
+            path, SingleSender(), StreamReceiver(), data, **kwargs
         ) as results:
             async for result in results:
                 yield result
@@ -89,11 +89,10 @@ class Client:
         self,
         path: str,
         data: Union[Iterable[JSON], AsyncIterable[JSON]],
-        *args,
         **kwargs,
     ) -> AsyncIterable[JSON]:
         async with self.call(
-            path, StreamSender(), StreamReceiver(), data, *args, **kwargs
+            path, StreamSender(), StreamReceiver(), data, **kwargs
         ) as results:
             async for result in results:
                 yield result
