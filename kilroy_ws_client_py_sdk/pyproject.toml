@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kilroy-ws-client-py-sdk"
-version = "0.3.1"
+version = "0.4.0"
 description = "SDK for WebSocket clients in Python 🧰"
 readme = "README.md"
 authors = ["kilroy <kilroymail@pm.me>"]
@@ -13,6 +13,7 @@ documentation = "https://kilroybot.github.io/kilroy-ws-client-py-sdk"
 python = "^3.9"
 websockets = "^10.3"
 pydantic = "^1.9"
+pyhumps = "^3.7"
 
 # dev
 
