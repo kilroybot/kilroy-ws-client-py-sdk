@@ -14,3 +14,11 @@ async def asyncify(
     else:
         for item in iterable:
             yield item
+
+
+def lead(path: str) -> str:
+    return path if path.startswith("/") else "/" + path
+
+
+def untrail(url: str) -> str:
+    return url if not url.endswith("/") else url[:-1]
