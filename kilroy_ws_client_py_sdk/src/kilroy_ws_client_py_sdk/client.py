@@ -1,3 +1,4 @@
+import inspect
 from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import AsyncIterable, Iterable, Optional, Type, Union
@@ -42,9 +43,15 @@ class Client:
             url, *self._args, **{**self._kwargs, **kwargs}
         ) as websocket:
             async with chat(websocket) as chat_id:
-                yield receiver.chain(
-                    sender.send(websocket, chat_id, data), websocket, chat_id
-                )
+                sending = sender.send(websocket, chat_id, data)
+                chained = receiver.chain(sending, websocket, chat_id)
+                try:
+                    yield chained
+                finally:
+                    if inspect.iscoroutine(sending):
+                        sending.close()
+                    if inspect.iscoroutine(chained):
+                        chained.close()
 
     async def get(self, path: str, **kwargs) -> JSON:
         async with self.call(

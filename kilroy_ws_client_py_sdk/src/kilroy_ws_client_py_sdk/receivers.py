@@ -69,7 +69,13 @@ class SingleReceiver(Receiver[Awaitable[JSON]]):
     ) -> JSON:
         sending_task = asyncio.create_task(sending)
         data = await self.receive(websocket, chat_id)
-        await sending_task
+
+        sending_task.cancel()
+        try:
+            await sending_task
+        except asyncio.CancelledError:
+            pass
+
         return data
 
 
@@ -89,6 +95,12 @@ class StreamReceiver(Receiver[AsyncIterable[JSON]]):
         chat_id: UUID,
     ) -> AsyncIterable[JSON]:
         sending_task = asyncio.create_task(sending)
+
         async for data in self.receive(websocket, chat_id):
             yield data
-        await sending_task
+
+        sending_task.cancel()
+        try:
+            await sending_task
+        except asyncio.CancelledError:
+            pass
